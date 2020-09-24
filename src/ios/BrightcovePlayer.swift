@@ -14,12 +14,13 @@ import BrightcovePlayerSDK
     @objc(play:)
     func play(_ command: CDVInvokedUrlCommand) {
         let videoId = command.arguments[0] as? String ?? ""
+        let adConfigId = command.arguments[1] as? String ?? ""
         if videoId.isEmpty {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Video ID is not valid")
             commandDelegate.send(pluginResult, callbackId: "01")
         }
 
-        self.playById(videoId)
+        self.playById(videoId, adConfigId)
     }
 
     @objc(initAccount:)
@@ -49,20 +50,22 @@ import BrightcovePlayerSDK
 
     //MARK: Private Methods
 
-    private func initPlayerView(_ videoId: String) {
+    private func initPlayerView(_ videoId: String, adConfigId: String?) {
         if self.playerView == nil {
             self.storyboard = UIStoryboard(name: "BrightcovePlayer", bundle: nil)
             self.playerView = self.storyboard?.instantiateInitialViewController() as? PlayerViewController
             self.playerView?.setAccountIds(self.brightcovePolicyKey!, accountId: self.brightcoveAccountId!)
+            self.playerView?.setAdConfig(adConfigId)
             self.playerView?.setVideoId(videoId)
         } else {
+            self.playerView?.setAdConfig(adConfigId)
             self.playerView?.setVideoId(videoId)
             self.playerView?.playFromExistingView()
         }
     }
 
-    private func playById(_ videoId: String) {
-        self.initPlayerView(videoId)
+    private func playById(_ videoId: String, adConfigId: String?) {
+        self.initPlayerView(videoId, adConfigId)
         self.viewController.present(self.playerView!, animated: true)
     }
 }

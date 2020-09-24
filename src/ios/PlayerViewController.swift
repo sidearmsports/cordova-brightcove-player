@@ -1,4 +1,5 @@
 import BrightcovePlayerSDK
+import BrightcoveSSAI
 
 class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BCOVPUIPlayerViewDelegate {
 
@@ -10,6 +11,7 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     private var kViewControllerPlaybackServicePolicyKey: String?
     private var kViewControllerAccountID: String?
     private var kViewControllerVideoID: String?
+    private var kViewControllerAdConfigId: String?
 
     @IBOutlet weak var videoContainer: UIView!
     @IBOutlet weak var closeButton: UIButton!
@@ -48,6 +50,10 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
         self.kViewControllerVideoID = videoId
     }
 
+    internal func setAdConfigId(_ adConfigId: String?) {
+        self.kViewControllerAdConfigId = adConfigId
+    }
+
     internal func playFromExistingView() {
         self.createPlaybackController()
         self.setupVideoView()
@@ -65,6 +71,9 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     }
 
     private func requestContentFromPlaybackService() {
+        let queryParameters = [
+            kBCOVPlaybackServiceParamaterKeyAdConfigId: self.kViewControllerAdConfigId
+        ]
         self.playbackService?.findVideo(withVideoID: self.kViewControllerVideoID!, parameters: nil) { (video: BCOVVideo?, jsonResponse: [AnyHashable: Any]?, error: Error?) -> Void in
 
             if let video = video {
