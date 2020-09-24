@@ -15,12 +15,13 @@ import BrightcovePlayerSDK
     func play(_ command: CDVInvokedUrlCommand) {
         let videoId = command.arguments[0] as? String ?? ""
         let adConfigId = command.arguments[1] as? String ?? ""
+        let adTagUrl = command.arguments[2] as? String ?? ""
         if videoId.isEmpty {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Video ID is not valid")
             commandDelegate.send(pluginResult, callbackId: "01")
         }
 
-        self.playById(videoId, adConfigId: adConfigId)
+        self.playById(videoId, adConfigId: adConfigId, adTagUrl: adTagUrl)
     }
 
     @objc(initAccount:)
@@ -50,22 +51,24 @@ import BrightcovePlayerSDK
 
     //MARK: Private Methods
 
-    private func initPlayerView(_ videoId: String, adConfigId: String?) {
+    private func initPlayerView(_ videoId: String, adConfigId: String?, adTagUrl: String?) {
         if self.playerView == nil {
             self.storyboard = UIStoryboard(name: "BrightcovePlayer", bundle: nil)
             self.playerView = self.storyboard?.instantiateInitialViewController() as? PlayerViewController
             self.playerView?.setAccountIds(self.brightcovePolicyKey!, accountId: self.brightcoveAccountId!)
             self.playerView?.setAdConfigId(adConfigId)
+            self.playerView?.setAdConfigId(adTagUrl)
             self.playerView?.setVideoId(videoId)
         } else {
             self.playerView?.setAdConfigId(adConfigId)
+            self.playerView?.setAdConfigId(adTagUrl)
             self.playerView?.setVideoId(videoId)
             self.playerView?.playFromExistingView()
         }
     }
 
-    private func playById(_ videoId: String, adConfigId: String?) {
-        self.initPlayerView(videoId, adConfigId: adConfigId)
+    private func playById(_ videoId: String, adConfigId: String?, adTagUrl: String?) {
+        self.initPlayerView(videoId, adConfigId: adConfigId, adTagUrl: adTagUrl)
         self.viewController.present(self.playerView!, animated: true)
     }
 }

@@ -1,5 +1,7 @@
 import BrightcovePlayerSDK
-import BrightcoveSSAI
+//import BrightcoveSSAI
+import BrightcoveIMA
+import GoogleInteractiveMediaAds
 
 class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BCOVPUIPlayerViewDelegate {
 
@@ -12,6 +14,7 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     private var kViewControllerAccountID: String?
     private var kViewControllerVideoID: String?
     private var kViewControllerAdConfigId: String?
+    private var kViewControllerAdTagUrl: String?
 
     @IBOutlet weak var videoContainer: UIView!
     @IBOutlet weak var closeButton: UIButton!
@@ -54,6 +57,10 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
         self.kViewControllerAdConfigId = adConfigId
     }
 
+    internal func setAdTagUrl(_ adTagUrl: String?) {
+        self.kViewControllerAdTagUrl = adTagUrl
+    }
+
     internal func playFromExistingView() {
         self.createPlaybackController()
         self.setupVideoView()
@@ -63,8 +70,27 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     //MARK: Private Methods
 
     private func createPlaybackController() {
+        let imaSettings = IMASettings()
+        imaSettings.ppid = ""
+        imaSettings.language = "en"
+        
+        let renderSettings = IMAAdsRenderingSettings()
+        renderSettings.webOpenerPresentingController = self
+        renderSettings.webOpenerDelegate = self
+        
+        let adsRequestPolicy = BCOVIMAAdsRequestPolicy.init(vmapAdTagUrl: self.kViewControllerAdTagUrl)
+        
+        let imaPlaybackSessionOptions = [kBCOVIMAOptionIMAPlaybackSessionDelegateKey: self]
+        
         let sharedSDKManager: BCOVPlayerSDKManager = BCOVPlayerSDKManager.shared()
-        self.playbackController = sharedSDKManager.createPlaybackController()
+        self.playbackController = sharedSDKManager.createIMAPlaybackController(
+            with: imaSettings,
+            adsRenderingSettings: renderSettings,
+            adsRequestPolicy: adsRequestPolicy,
+            adContainer: self.videoView?.contentOverlayView,
+            companionSlots: nil,
+            viewStrategy: nil,
+            options: imaPlaybackSessionOptions)
         self.playbackController?.delegate = self
         self.playbackController?.isAutoAdvance = true
         self.playbackController?.isAutoPlay = true
@@ -74,7 +100,7 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
         let queryParameters = [
             kBCOVPlaybackServiceParamaterKeyAdConfigId: self.kViewControllerAdConfigId
         ]
-        self.playbackService?.findVideo(withVideoID: self.kViewControllerVideoID!, parameters: nil) { (video: BCOVVideo?, jsonResponse: [AnyHashable: Any]?, error: Error?) -> Void in
+        self.playbackService?.findVideo(withVideoID: self.kViewControllerVideoID!, parameters: queryParameters) { (video: BCOVVideo?, jsonResponse: [AnyHashable: Any]?, error: Error?) -> Void in
 
             if let video = video {
                 self.playbackController?.setVideos([video] as NSArray)
@@ -120,4 +146,13 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
             self.clear()
         })
     }
+}
+
+extension PlayerViewController: IMAWebOpenerDelegate {
+    
+    func webOpenerDidClose(inAppBrowser webOpener: NSObject!) {
+        // Called when the in-app browser has closed.
+        playbackController?.resumeAd()
+    }
+    
 }
