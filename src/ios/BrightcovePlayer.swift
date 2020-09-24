@@ -20,7 +20,7 @@ import BrightcovePlayerSDK
             commandDelegate.send(pluginResult, callbackId: "01")
         }
 
-        self.playById(videoId, adConfigId)
+        self.playById(videoId, adConfigId: adConfigId)
     }
 
     @objc(initAccount:)
@@ -55,17 +55,17 @@ import BrightcovePlayerSDK
             self.storyboard = UIStoryboard(name: "BrightcovePlayer", bundle: nil)
             self.playerView = self.storyboard?.instantiateInitialViewController() as? PlayerViewController
             self.playerView?.setAccountIds(self.brightcovePolicyKey!, accountId: self.brightcoveAccountId!)
-            self.playerView?.setAdConfig(adConfigId)
+            self.playerView?.setAdConfigId(adConfigId)
             self.playerView?.setVideoId(videoId)
         } else {
-            self.playerView?.setAdConfig(adConfigId)
+            self.playerView?.setAdConfigId(adConfigId)
             self.playerView?.setVideoId(videoId)
             self.playerView?.playFromExistingView()
         }
     }
 
     private func playById(_ videoId: String, adConfigId: String?) {
-        self.initPlayerView(videoId, adConfigId)
+        self.initPlayerView(videoId, adConfigId: adConfigId)
         self.viewController.present(self.playerView!, animated: true)
     }
 }
