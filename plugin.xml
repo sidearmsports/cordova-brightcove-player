@@ -5,8 +5,8 @@
     <author>Vincent Fu</author>
     <license>Apache 2.0</license>
     <keywords>cordova,brightcove,videoplayer,player</keywords>
-    <js-module src="www/videoPlayer.js" name="videoPlayer">
-        <clobbers target="videoPlayer" />
+    <js-module src="www/brightcovePlayer.js" name="brightcovePlayer">
+        <clobbers target="brightcovePlayer" />
     </js-module>
 
     <platform name="ios">
