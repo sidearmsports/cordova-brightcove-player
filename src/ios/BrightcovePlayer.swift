@@ -57,11 +57,11 @@ import BrightcovePlayerSDK
             self.playerView = self.storyboard?.instantiateInitialViewController() as? PlayerViewController
             self.playerView?.setAccountIds(self.brightcovePolicyKey!, accountId: self.brightcoveAccountId!)
             self.playerView?.setAdConfigId(adConfigId)
-            self.playerView?.setAdConfigId(adTagUrl)
+            self.playerView?.setAdTagUrl(adTagUrl)
             self.playerView?.setVideoId(videoId)
         } else {
             self.playerView?.setAdConfigId(adConfigId)
-            self.playerView?.setAdConfigId(adTagUrl)
+            self.playerView?.setAdTagUrl(adTagUrl)
             self.playerView?.setVideoId(videoId)
             self.playerView?.playFromExistingView()
         }
