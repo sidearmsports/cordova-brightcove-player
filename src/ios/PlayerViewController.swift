@@ -3,7 +3,7 @@ import BrightcovePlayerSDK
 import BrightcoveIMA
 import GoogleInteractiveMediaAds
 
-class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BCOVPUIPlayerViewDelegate {
+class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BCOVPUIPlayerViewDelegate, BCOVPlaybackControllerAdsDelegate, BCOVIMAPlaybackSessionDelegate {
 
     //MARK: Properties
 
@@ -19,23 +19,17 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     @IBOutlet weak var videoContainer: UIView!
     @IBOutlet weak var closeButton: UIButton!
 
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.createPlaybackController()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.setupVideoView()
-        self.requestContentFromPlaybackService()
+        self.playFromExistingView()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         //Force switching to portrait mode to fix a UI bug
         let value = UIInterfaceOrientation.portrait.rawValue
         UIDevice.current.setValue(value, forKey: "orientation")
+        self.playbackController?.pauseAd()
     }
 
     override var prefersStatusBarHidden : Bool {
@@ -62,8 +56,8 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
     }
 
     internal func playFromExistingView() {
-        self.createPlaybackController()
         self.setupVideoView()
+        self.createPlaybackController()
         self.requestContentFromPlaybackService()
     }
 
@@ -71,7 +65,6 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
 
     private func createPlaybackController() {
         let imaSettings = IMASettings()
-        imaSettings.ppid = ""
         imaSettings.language = "en"
         
         let renderSettings = IMAAdsRenderingSettings()
@@ -87,23 +80,21 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
             with: imaSettings,
             adsRenderingSettings: renderSettings,
             adsRequestPolicy: adsRequestPolicy,
-            adContainer: self.videoView?.contentOverlayView,
+            adContainer: self.videoView!.contentOverlayView,
             companionSlots: nil,
             viewStrategy: nil,
             options: imaPlaybackSessionOptions)
         self.playbackController?.delegate = self
         self.playbackController?.isAutoAdvance = true
-        self.playbackController?.isAutoPlay = true
+        self.videoView?.playbackController = self.playbackController
     }
 
     private func requestContentFromPlaybackService() {
-        let queryParameters = [
-            kBCOVPlaybackServiceParamaterKeyAdConfigId: self.kViewControllerAdConfigId
-        ]
-        self.playbackService?.findVideo(withVideoID: self.kViewControllerVideoID!, parameters: queryParameters) { (video: BCOVVideo?, jsonResponse: [AnyHashable: Any]?, error: Error?) -> Void in
+        self.playbackService?.findVideo(withVideoID: self.kViewControllerVideoID!, parameters: nil) { (video: BCOVVideo?, jsonResponse: [AnyHashable: Any]?, error: Error?) -> Void in
 
             if let video = video {
                 self.playbackController?.setVideos([video] as NSArray)
+                self.playbackController?.play()
             }
         }
     }
@@ -115,7 +106,6 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
         self.videoView?.frame = self.videoContainer.bounds
         self.videoView?.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         self.videoContainer.addSubview(videoView!)
-        self.videoView?.playbackController = playbackController
         self.customizeUI()
     }
 
@@ -145,6 +135,18 @@ class PlayerViewController: UIViewController, BCOVPlaybackControllerDelegate, BC
             self.playbackController?.pause()
             self.clear()
         })
+    }
+    
+    func willCallIMAAdsLoaderRequestAds(with adsRequest: IMAAdsRequest!, forPosition position: TimeInterval) {
+        adsRequest.vastLoadTimeout = 3000
+    }
+    
+    func playbackController(_ controller: BCOVPlaybackController!, playbackSession session: BCOVPlaybackSession!, didEnter adSequence: BCOVAdSequence!) {
+          self.videoView!.controlsContainerView.alpha = 0.0;
+    }
+    
+    func playbackController(_ controller: BCOVPlaybackController!, playbackSession session: BCOVPlaybackSession!, didExitAdSequence adSequence: BCOVAdSequence!) {
+        self.videoView!.controlsContainerView.alpha = 1.0;
     }
 }
 
