@@ -5,6 +5,7 @@
     <author>Vincent Fu</author>
     <license>Apache 2.0</license>
     <keywords>cordova,brightcove,videoplayer,player</keywords>
+    <dependency id="cordova-plugin-cocoapod-support"/>
     <js-module src="www/brightcovePlayer.js" name="brightcovePlayer">
         <clobbers target="brightcovePlayer" />
     </js-module>
@@ -34,15 +35,11 @@
         <framework src="SystemConfiguration.framework" />
         <framework src="WebKit.framework" />
 
-        <podspec>
-            <config>
-                <source url="https://github.com/CocoaPods/Specs.git"/>
-                <source url="https://github.com/brightcove/BrightcoveSpecs.git" />
-            </config>
-            <pods use-frameworks="true">
-                <pod name="Brightcove-Player-IMA" spec="6.7.11" />
-            </pods>
-        </podspec>
+        <pods-config ios-min-version="11.0">
+            <source url="https://github.com/CocoaPods/Specs.git"/>
+            <source url="https://github.com/brightcove/BrightcoveSpecs.git" />
+        </pods-config>
+        <pod name="Brightcove-Player-IMA" spec="6.7.11" />
     </platform>
 
     <platform name="android">
