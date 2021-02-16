@@ -39,7 +39,7 @@
             <source url="https://github.com/CocoaPods/Specs.git"/>
             <source url="https://github.com/brightcove/BrightcoveSpecs.git" />
         </pods-config>
-        <pod name="Brightcove-Player-IMA" spec="6.7.11" />
+        <pod name="Brightcove-Player-IMA" version="6.7.11" />
     </platform>
 
     <platform name="android">
