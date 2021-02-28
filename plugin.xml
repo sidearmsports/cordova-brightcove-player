@@ -35,7 +35,7 @@
         <framework src="SystemConfiguration.framework" />
         <framework src="WebKit.framework" />
 
-        <pods-config ios-min-version="11.0" use-frameworks="true">
+        <pods-config ios-min-version="11.0">
             <source url="https://github.com/CocoaPods/Specs.git"/>
             <source url="https://github.com/brightcove/BrightcoveSpecs.git" />
         </pods-config>
